@@ -1,13 +1,7 @@
 require 'rbconfig'
 
 
-if RbConfig::CONFIG['ruby_install_name'] == 'jruby'
-
-  File.open("Makefile", "w") do |f|
-    f.write "install:\n\tjrubyc --javac org/pryrepl/InterceptionEventHook.java\n"
-  end
-
-elsif RbConfig::CONFIG['ruby_install_name'] =~ /^ruby/ && RUBY_VERSION.to_f < 2.0
+if RbConfig::CONFIG['ruby_install_name'] =~ /^ruby/ && RUBY_VERSION.to_f < 2.0
 
   require 'mkmf'
   $CFLAGS += " -DRUBY_18" if RUBY_VERSION =~ /^(1.8)/

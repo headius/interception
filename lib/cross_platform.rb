@@ -31,37 +31,9 @@ class << Interception
       end
     end
 
-  # For JRuby we use the underlying hooks mechanism.
-  #
-  # It seems to work even if I don't pass --debug, but it still
-  # warns about it. So disable the warnings and install the hook.
-  elsif defined?(JRuby)
-
-    require 'java'
-    $CLASSPATH << File.expand_path('../../ext/', __FILE__)
-    java_import org.pryrepl.InterceptionEventHook
-
-    def start
-      old_verbose = $VERBOSE
-      $VERBOSE = nil
-      JRuby.runtime.add_event_hook(hook)
-    ensure
-      $VERBOSE  = old_verbose
-    end
-
-    def stop
-      JRuby.runtime.remove_event_hook(hook)
-    end
-
-    def hook
-      @hook ||= InterceptionEventHook.new(proc do |e, b|
-        self.rescue(e, b)
-      end)
-    end
-
   # For MRI
   # @note For Ruby 2.0 and later we use the new TracePoint API.
-  elsif RUBY_VERSION.to_f >= 2.0 && RUBY_ENGINE == 'ruby'
+  elsif RUBY_VERSION.to_f >= 2.0 && (%w[ruby jruby].include? RUBY_ENGINE)
 
     def start
       @tracepoint ||= TracePoint.new(:raise) do |tp|
